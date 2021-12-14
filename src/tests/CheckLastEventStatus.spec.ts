@@ -1,4 +1,6 @@
 class CheckLastEventStatus {
+
+    constructor(private readonly loadLastEventRepository: LoadLastEventRepository) {}
     async execute(group_id: string): Promise<void> {
 
     }
@@ -11,7 +13,7 @@ class LoadLastEventRepository {
 describe("CheckLastEventStatus", () => {
     it("should get last event data", async () => {
         const loadLastEventRepository = new LoadLastEventRepository();
-        const checkLastEventStatus = new CheckLastEventStatus();
+        const checkLastEventStatus = new CheckLastEventStatus(loadLastEventRepository);
 
         await checkLastEventStatus.execute('any_group_id');
 
