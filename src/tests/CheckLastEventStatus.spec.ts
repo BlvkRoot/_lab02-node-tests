@@ -53,4 +53,13 @@ describe("CheckLastEventStatus", () => {
 
         expect(status).toBe('done');
     })
+
+    it("should return status active when current date is before event end time", async () => {
+        const { sut, loadLastEventRepository} = makeSut();
+        loadLastEventRepository.output = undefined;
+
+        const status = await sut.execute('any_group_id');
+
+        expect(status).toBe('done');
+    })
 });
