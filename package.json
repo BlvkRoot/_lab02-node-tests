@@ -4,13 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest --watchAll"
+    "test": "jest --watch"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "jest": "^27.4.5",
     "ts-jest": "^27.1.1",
+    "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   }
 }
