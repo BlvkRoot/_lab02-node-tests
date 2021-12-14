@@ -3,7 +3,6 @@ class CheckLastEventStatus {
     constructor(private readonly loadLastEventRepository: ILoadLastEventRepository) {}
     async execute(group_id: string): Promise<void> {
         await this.loadLastEventRepository.loadLastEvent(group_id);
-        await this.loadLastEventRepository.loadLastEvent(group_id);
     }
 }
 
@@ -24,9 +23,9 @@ class LoadLastEventRepositoryMock implements ILoadLastEventRepository{
 describe("CheckLastEventStatus", () => {
     it("should get last event data", async () => {
         const loadLastEventRepository = new LoadLastEventRepositoryMock();
-        const checkLastEventStatus = new CheckLastEventStatus(loadLastEventRepository);
+        const sut = new CheckLastEventStatus(loadLastEventRepository);
 
-        await checkLastEventStatus.execute('any_group_id');
+        await sut.execute('any_group_id');
 
         expect(loadLastEventRepository.group_id).toBe('any_group_id');
         expect(loadLastEventRepository.callsCount).toBe(1);
