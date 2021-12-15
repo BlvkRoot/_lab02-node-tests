@@ -1,19 +1,20 @@
 import { set, reset } from 'mockdate';
+
+type TOutput = { endDate: Date } | undefined;
+type TEventStatus = { status: string };
 class CheckLastEventStatus {
 
     constructor(private readonly loadLastEventRepository: ILoadLastEventRepository) {}
-    async execute({ group_id } : {group_id: string}): Promise<string> {
+    async execute({ group_id } : {group_id: string}): Promise<TEventStatus> {
         const event = await this.loadLastEventRepository.loadLastEvent({group_id});
-        if (event === undefined) return 'done';
+        if (event === undefined) return { status: 'done' };
         const now = new Date();
-        return event.endDate > now ? 'active' : 'inReview';
+        return event.endDate > now ? { status: 'active' } : { status: 'inReview' };
     }
 }
 
-type TOutput = { endDate: Date } | undefined;
-
 interface ILoadLastEventRepository {
-    loadLastEvent(input : {group_id: string}): Promise<TOutput>;
+    loadLastEvent(input : { group_id: string }): Promise<TOutput>;
 }
 
 class LoadLastEventRepositorySpy implements ILoadLastEventRepository{
@@ -21,7 +22,7 @@ class LoadLastEventRepositorySpy implements ILoadLastEventRepository{
     callsCount = 0;
     output: TOutput;
 
-    async loadLastEvent({ group_id } : {group_id: string}): Promise<TOutput> {
+    async loadLastEvent({ group_id } : { group_id: string }): Promise<TOutput> {
         this.group_id = group_id;
         this.callsCount++;
         return this.output;
@@ -64,7 +65,7 @@ describe("CheckLastEventStatus", () => {
         const { sut, loadLastEventRepository} = makeSut();
         loadLastEventRepository.output = undefined;
 
-        const status = await sut.execute({ group_id });
+        const { status } = await sut.execute({ group_id });
 
         expect(status).toBe('done');
     })
@@ -75,7 +76,7 @@ describe("CheckLastEventStatus", () => {
             endDate: new Date(new Date().getTime() + 1)
         };
 
-        const status = await sut.execute({ group_id });
+        const { status } = await sut.execute({ group_id });
 
         expect(status).toBe('active');
     })
@@ -86,7 +87,7 @@ describe("CheckLastEventStatus", () => {
             endDate: new Date(new Date().getTime() - 1)
         };
 
-        const status = await sut.execute({ group_id });
+        const { status } = await sut.execute({ group_id });
 
         expect(status).toBe('inReview');
     })
