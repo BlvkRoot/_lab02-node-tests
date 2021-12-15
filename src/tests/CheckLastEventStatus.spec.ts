@@ -22,16 +22,6 @@ class LoadLastEventRepositorySpy implements ILoadLastEventRepository{
     callsCount = 0;
     output: TOutput;
 
-    setCurrentDateBeforeReviewTime(): void {
-        const reviewDurationInHours = 1;
-        const reviewDurationInMs = reviewDurationInHours * 60 * 60 * 1000;
-
-        this.output = {
-            endDate: new Date(new Date().getTime() - reviewDurationInMs + 1),
-            reviewDurationInHours
-        };
-    }
-
     async loadLastEvent({ group_id } : { group_id: string }): Promise<TOutput> {
         this.group_id = group_id;
         this.callsCount++;
@@ -115,7 +105,28 @@ describe("CheckLastEventStatus", () => {
 
     it("should return status inReview when current date is before review time", async () => {
         const { sut, loadLastEventRepository} = makeSut();
-        loadLastEventRepository.setCurrentDateBeforeReviewTime();
+        const reviewDurationInHours = 1;
+        const reviewDurationInMs = reviewDurationInHours * 60 * 60 * 1000;
+
+        loadLastEventRepository.output = {
+            endDate: new Date(new Date().getTime() - reviewDurationInMs + 1),
+            reviewDurationInHours
+        };
+
+        const { status } = await sut.execute({ group_id });
+
+        expect(status).toBe('inReview');
+    })
+
+    it("should return status inReview when current date is equal to review time", async () => {
+        const { sut, loadLastEventRepository} = makeSut();
+        const reviewDurationInHours = 1;
+        const reviewDurationInMs = reviewDurationInHours * 60 * 60 * 1000;
+
+        loadLastEventRepository.output = {
+            endDate: new Date(new Date().getTime() - reviewDurationInMs),
+            reviewDurationInHours
+        };
 
         const { status } = await sut.execute({ group_id });
 
