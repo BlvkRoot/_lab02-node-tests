@@ -9,7 +9,7 @@ class CheckLastEventStatus {
         const event = await this.loadLastEventRepository.loadLastEvent({group_id});
         if (event === undefined) return { status: 'done' };
         const now = new Date();
-        return event.endDate > now ? { status: 'active' } : { status: 'inReview' };
+        return event.endDate >= now ? { status: 'active' } : { status: 'inReview' };
     }
 }
 
@@ -74,6 +74,17 @@ describe("CheckLastEventStatus", () => {
         const { sut, loadLastEventRepository} = makeSut();
         loadLastEventRepository.output = {
             endDate: new Date(new Date().getTime() + 1)
+        };
+
+        const { status } = await sut.execute({ group_id });
+
+        expect(status).toBe('active');
+    })
+
+    it("should return status active when current date is equal to event end time", async () => {
+        const { sut, loadLastEventRepository} = makeSut();
+        loadLastEventRepository.output = {
+            endDate: new Date()
         };
 
         const { status } = await sut.execute({ group_id });
