@@ -1,6 +1,6 @@
 import { set, reset } from 'mockdate';
 
-type TOutput = { endDate: Date } | undefined;
+type TOutput = { endDate: Date, reviewDurationInHours?: number } | undefined;
 type TEventStatus = { status: string };
 class CheckLastEventStatus {
 
@@ -21,6 +21,16 @@ class LoadLastEventRepositorySpy implements ILoadLastEventRepository{
     group_id?: string;
     callsCount = 0;
     output: TOutput;
+
+    setCurrentDateBeforeReviewTime(): void {
+        const reviewDurationInHours = 1;
+        const reviewDurationInMs = reviewDurationInHours * 60 * 60 * 1000;
+
+        this.output = {
+            endDate: new Date(new Date().getTime() - reviewDurationInMs + 1),
+            reviewDurationInHours
+        };
+    }
 
     async loadLastEvent({ group_id } : { group_id: string }): Promise<TOutput> {
         this.group_id = group_id;
@@ -97,6 +107,15 @@ describe("CheckLastEventStatus", () => {
         loadLastEventRepository.output = {
             endDate: new Date(new Date().getTime() - 1)
         };
+
+        const { status } = await sut.execute({ group_id });
+
+        expect(status).toBe('inReview');
+    })
+
+    it("should return status inReview when current date is before review time", async () => {
+        const { sut, loadLastEventRepository} = makeSut();
+        loadLastEventRepository.setCurrentDateBeforeReviewTime();
 
         const { status } = await sut.execute({ group_id });
 
